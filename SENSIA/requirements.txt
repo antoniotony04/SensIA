@@ -1,0 +1,10 @@
+# !! NE PAS utiliser "pip install -r requirements.txt" directement pour PyTorch !!
+# Voir README.md - Etape 1 pour la commande correcte avec CUDA
+
+# Ces packages s'installent normalement avec pip :
+kivy[base]>=2.2.0
+opencv-python>=4.8.0
+librosa>=0.10.0
+sounddevice>=0.4.6
+numpy>=1.24.0
+soundfile>=0.12.1

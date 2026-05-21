@@ -1,0 +1,378 @@
+#:kivy 2.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SENSIA – fichier de design Kivy (.kv)
+# ─────────────────────────────────────────────────────────────────────────────
+
+<RoundButton@Button>:
+    background_color: 0, 0, 0, 0
+    canvas.before:
+        Color:
+            rgba: (0.18, 0.44, 0.71, 1) if self.state == 'normal' else (0.12, 0.31, 0.50, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20]
+
+<AnxietyBar@Widget>:
+    anxiety_score: 0
+    canvas:
+        Color:
+            rgba: 0.88, 0.88, 0.88, 1
+        RoundedRectangle:
+            pos: self.x, self.y
+            size: self.width, self.height
+            radius: [10]
+        Color:
+            rgba:
+                (0.18, 0.8, 0.44, 1) if self.anxiety_score < 30 else \
+                (0.95, 0.61, 0.07, 1) if self.anxiety_score < 60 else \
+                (0.91, 0.30, 0.24, 1)
+        RoundedRectangle:
+            pos: self.x, self.y
+            size: self.width * self.anxiety_score / 100, self.height
+            radius: [10]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ACCUEIL
+# ─────────────────────────────────────────────────────────────────────────────
+<AccueilScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.06, 0.09, 0.16, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 40
+        spacing: 20
+
+        Label:
+            text: 'SENSIA'
+            font_size: 60
+            bold: True
+            color: 0.18, 0.60, 0.94, 1
+            size_hint_y: 0.2
+
+        Label:
+            text: "Système Intelligent pour l'Amélioration de l'Anxiété"
+            font_size: 16
+            color: 0.8, 0.8, 0.8, 1
+            size_hint_y: 0.1
+            halign: 'center'
+            text_size: self.width, None
+
+        Widget:
+            size_hint_y: 0.05
+
+        Label:
+            text: "📊 Dernière session :"
+            font_size: 14
+            color: 0.6, 0.6, 0.6, 1
+            size_hint_y: 0.07
+            halign: 'left'
+            text_size: self.width, None
+
+        ScrollView:
+            size_hint_y: 0.3
+            id: history_scroll
+            BoxLayout:
+                id: history_box
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 6
+
+        Widget:
+            size_hint_y: 0.05
+
+        RoundButton:
+            text: '▶  Démarrer l\'analyse'
+            font_size: 20
+            size_hint_y: 0.12
+            on_release: root.go_analyse()
+
+        RoundButton:
+            text: '📚  Bibliothèque d\'exercices'
+            font_size: 16
+            size_hint_y: 0.09
+            background_color: 0, 0, 0, 0
+            canvas.before:
+                Color:
+                    rgba: 0.12, 0.25, 0.40, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [20]
+            on_release: root.go_library()
+
+        Widget:
+            size_hint_y: 0.05
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ANALYSE
+# ─────────────────────────────────────────────────────────────────────────────
+<AnalyseScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.06, 0.09, 0.16, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 14
+
+        # Header
+        BoxLayout:
+            size_hint_y: 0.07
+            Label:
+                text: '← Retour'
+                color: 0.18, 0.60, 0.94, 1
+                font_size: 16
+                size_hint_x: 0.2
+                on_touch_down:
+                    if self.collide_point(*args[1].pos): root.go_back()
+            Label:
+                text: 'Analyse en cours'
+                bold: True
+                font_size: 18
+                color: 1, 1, 1, 1
+                size_hint_x: 0.6
+                halign: 'center'
+                text_size: self.width, None
+            Widget:
+                size_hint_x: 0.2
+
+        # Webcam feed
+        BoxLayout:
+            size_hint_y: 0.50
+            orientation: 'vertical'
+            padding: [10, 0]
+            Image:
+                id: webcam_img
+                allow_stretch: True
+                keep_ratio: True
+
+        # Émotion visage
+        BoxLayout:
+            size_hint_y: 0.08
+            padding: [10, 0]
+            Label:
+                text: '😐 Visage :'
+                font_size: 14
+                color: 0.7, 0.7, 0.7, 1
+                size_hint_x: 0.3
+                halign: 'left'
+            Label:
+                id: face_label
+                text: '—'
+                font_size: 18
+                bold: True
+                color: 1, 1, 1, 1
+                size_hint_x: 0.7
+                halign: 'left'
+
+        # Émotion voix
+        BoxLayout:
+            size_hint_y: 0.08
+            padding: [10, 0]
+            Label:
+                text: '🎙️ Voix :'
+                font_size: 14
+                color: 0.7, 0.7, 0.7, 1
+                size_hint_x: 0.3
+                halign: 'left'
+            Label:
+                id: voice_label
+                text: 'Appuyez pour analyser'
+                font_size: 14
+                color: 0.8, 0.8, 0.8, 1
+                size_hint_x: 0.7
+                halign: 'left'
+
+        # Bouton enregistrement voix
+        RoundButton:
+            id: record_btn
+            text: '🎙️  Analyser la voix (3s)'
+            font_size: 16
+            size_hint_y: 0.10
+            on_release: root.record_voice()
+
+        # Bouton Résultat
+        RoundButton:
+            id: result_btn
+            text: '📊  Voir le résultat'
+            font_size: 16
+            size_hint_y: 0.10
+            on_release: root.go_result()
+            opacity: 0
+            disabled: True
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RÉSULTAT
+# ─────────────────────────────────────────────────────────────────────────────
+<ResultatScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.06, 0.09, 0.16, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ScrollView:
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 30
+            spacing: 18
+            size_hint_y: None
+            height: self.minimum_height
+
+            # Titre
+            Label:
+                text: 'Résultat de l\'analyse'
+                bold: True
+                font_size: 22
+                color: 0.18, 0.60, 0.94, 1
+                size_hint_y: None
+                height: 50
+                halign: 'center'
+
+            # Score principal
+            Label:
+                id: score_label
+                text: '--'
+                font_size: 64
+                bold: True
+                color: 1, 1, 1, 1
+                size_hint_y: None
+                height: 80
+                halign: 'center'
+
+            Label:
+                id: level_label
+                text: 'Niveau d\'anxiété : —'
+                font_size: 18
+                color: 0.9, 0.9, 0.9, 1
+                size_hint_y: None
+                height: 36
+                halign: 'center'
+
+            # Barre d'anxiété
+            AnxietyBar:
+                id: anxiety_bar
+                size_hint_y: None
+                height: 24
+                anxiety_score: 0
+
+            # Détails face / voix
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: 60
+                spacing: 20
+                Label:
+                    id: face_detail
+                    text: '😐 Visage :\n—'
+                    font_size: 14
+                    color: 0.8, 0.8, 0.8, 1
+                    halign: 'center'
+                Label:
+                    id: voice_detail
+                    text: '🎙️ Voix :\n—'
+                    font_size: 14
+                    color: 0.8, 0.8, 0.8, 1
+                    halign: 'center'
+
+            # Séparateur
+            Widget:
+                size_hint_y: None
+                height: 10
+
+            Label:
+                text: '💡 Exercices recommandés'
+                font_size: 18
+                bold: True
+                color: 0.18, 0.60, 0.94, 1
+                size_hint_y: None
+                height: 40
+                halign: 'left'
+
+            # Conteneur exercices (rempli dynamiquement)
+            BoxLayout:
+                id: exercises_box
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 12
+
+            Widget:
+                size_hint_y: None
+                height: 20
+
+            RoundButton:
+                text: '🔄  Nouvelle analyse'
+                font_size: 16
+                size_hint_y: None
+                height: 50
+                on_release: root.new_analysis()
+
+            RoundButton:
+                text: '🏠  Accueil'
+                font_size: 16
+                size_hint_y: None
+                height: 50
+                canvas.before:
+                    Color:
+                        rgba: 0.12, 0.25, 0.40, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [20]
+                on_release: root.go_home()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BIBLIOTHÈQUE
+# ─────────────────────────────────────────────────────────────────────────────
+<LibraryScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.06, 0.09, 0.16, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 14
+
+        BoxLayout:
+            size_hint_y: 0.07
+            Label:
+                text: '← Retour'
+                color: 0.18, 0.60, 0.94, 1
+                font_size: 16
+                size_hint_x: 0.3
+                on_touch_down:
+                    if self.collide_point(*args[1].pos): root.go_back()
+            Label:
+                text: 'Bibliothèque d\'exercices'
+                bold: True
+                font_size: 18
+                color: 1, 1, 1, 1
+                size_hint_x: 0.7
+                halign: 'center'
+
+        ScrollView:
+            BoxLayout:
+                id: library_box
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 12
+                padding: [0, 10]
